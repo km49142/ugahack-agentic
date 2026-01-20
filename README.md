@@ -47,88 +47,27 @@ playwright install chromium
 
 ## Quick Start
 
-### 1. Setup Your Profile
+Getting started is a two-step process. First you create your profile, then you can start applying.
 
-**Option A: Interactive Setup (Recommended)**
+### 1. Create Your Profile (One-Time Setup)
+
+Run the interactive script to create your `user_profile.json`. The bot will use this data to fill out applications.
 
 ```bash
 python setup_profile.py
 ```
-
-**Option B: Manual Setup**
-
-Edit `example_usage.py` to add your information:
-
-```python
-from src.profile_manager import ProfileManager
-
-profile = ProfileManager()
-
-# Add your personal info
-profile.update_personal_info(
-    first_name="Your Name",
-    last_name="Last Name",
-    email="your.email@university.edu",
-    phone="(555) 123-4567",
-    linkedin="https://linkedin.com/in/yourprofile",
-    github="https://github.com/yourusername"
-)
-
-# Add education
-profile.add_education(
-    school="Your University",
-    degree="Bachelor of Science",
-    major="Computer Science",
-    gpa=3.8,
-    start_date="2022-09",
-    end_date="2026-05"
-)
-
-# Add experience, projects, skills, etc.
-profile.save_profile()
-```
+The script will prompt you for your personal info, education, work experience, and paths to your resume and other documents.
 
 ### 2. Apply to an Internship
 
-**NEW: Simple CLI Interface**
-
-Just run:
+Once your profile is saved, run the main application script:
 
 ```bash
 python apply.py
 ```
 
-The bot will:
-1. Ask for the internship application URL
-2. Detect if account creation is needed
-3. Automatically create username/password
-4. Fill out the entire application form
-5. Take screenshots for your review
+The bot will then ask for the internship application URL and guide you through the process. By default, it runs in a "preview mode" that fills the form but **does not** click the final submit button, allowing you to review everything first.
 
-**Advanced: Programmatic Usage**
-
-```python
-import asyncio
-from src.profile_manager import ProfileManager
-from src.application_bot import InternshipApplicationBot
-
-async def main():
-    profile = ProfileManager()
-    bot = InternshipApplicationBot(profile, headless=False)
-
-    await bot.start()
-
-    result = await bot.apply_to_job(
-        company="Google",
-        position="Software Engineering Intern",
-        url="https://careers.google.com/jobs/...",
-        submit=False  # Set True to actually submit
-    )
-
-    await bot.close()
-
-asyncio.run(main())
-```
 
 ### 3. Batch Apply to Multiple Jobs
 
