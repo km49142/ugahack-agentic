@@ -9,7 +9,9 @@ class ApplicationTracker:
 
     def __init__(self, db_path: str = "data/applications.csv"):
         self.db_path = Path(db_path)
+        # Ensure both data/ and data/screenshots/ exist
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
+        Path(self.db_path.parent / "screenshots").mkdir(parents=True, exist_ok=True)
         self.df = self._load_database()
 
     def _load_database(self) -> pd.DataFrame:
