@@ -39,6 +39,10 @@ class FormDetector:
                 name, id_attr, placeholder, label_text, input_type
             )
 
+            # Log detected field info for debugging
+            print(f"  [DEBUG] Detected field: tag='{tag_name}', type='{input_type}', name='{name}', id='{id_attr}', "
+                  f"placeholder='{placeholder}', label='{label_text}', purpose='{field_purpose}'")
+
             return {
                 'tag': tag_name,
                 'type': input_type,
@@ -161,12 +165,17 @@ class FormDetector:
 
 
 class FormFiller:
-    """Fill forms automatically based on user profile."""
+    """Fill forms automatically based on user profile.
 
-    def __init__(self, page: Page, profile: Dict[str, Any]):
+    If an `agent` is provided it will be used to answer open-ended or
+    ambiguous questions.
+    """
+
+    def __init__(self, page: Page, profile: Dict[str, Any], agent: Optional[Any] = None):
         self.page = page
         self.profile = profile
         self.detector = FormDetector(page)
+        self.agent = agent
 
     async def auto_fill_form(self, interactive: bool = True) -> Dict[str, Any]:
         """
@@ -250,6 +259,18 @@ class FormFiller:
                             await self._fill_field(field, user_input)
                             user_answered_fields.append(question_text)
                         else:
+                            # If user skipped and an agent is available, ask the agent
+                            if self.agent:
+                                try:
+                                    resp = await self.agent.answer_question(question_text)
+                                    answer = resp.get('answer') if isinstance(resp, dict) else str(resp)
+                                    if answer:
+                                        await self._fill_field(field, answer)
+                                        user_answered_fields.append(question_text)
+                                        continue
+                                except Exception:
+                                    pass
+
                             unfilled_fields.append({
                                 'purpose': field['purpose'],
                                 'label': field['label'],
@@ -264,6 +285,18 @@ class FormFiller:
                     await self._fill_field(field, value)
                     filled_fields.append(field['purpose'])
                 else:
+                    # Try agent for unknown or open-ended fields
+                    if self.agent and field['purpose'] in ('unknown',) and field.get('label'):
+                        try:
+                            resp = await self.agent.answer_question(field['label'])
+                            answer = resp.get('answer') if isinstance(resp, dict) else str(resp)
+                            if answer and field['selector']:
+                                await self._fill_field(field, answer)
+                                filled_fields.append(field['purpose'])
+                                continue
+                        except Exception as e:
+                            print(f"Agent error: {e}")
+
                     unfilled_fields.append({
                         'purpose': field['purpose'],
                         'label': field['label'],

@@ -8,7 +8,7 @@ import asyncio
 from playwright.async_api import async_playwright
 
 
-async def test_account_detection():
+async def _test_account_detection_async():
     """Test account creation detection on sample pages."""
 
     print("=" * 60)
@@ -72,5 +72,10 @@ async def test_account_detection():
         await playwright.stop()
 
 
+def test_account_detection():
+    """Synchronous wrapper so pytest can run the async test."""
+    asyncio.run(_test_account_detection_async())
+
+
 if __name__ == "__main__":
-    asyncio.run(test_account_detection())
+    asyncio.run(_test_account_detection_async())

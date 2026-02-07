@@ -28,7 +28,7 @@ async def example_single_application():
     profile = await setup_profile()
 
     # Create bot
-    bot = InternshipApplicationBot(profile, headless=False)
+    bot = InternshipApplicationBot(profile, headless=False, use_agent=True)
 
     try:
         # Start browser
@@ -74,7 +74,7 @@ async def example_batch_applications():
     ]
 
     # Create bot
-    bot = InternshipApplicationBot(profile, headless=False)
+    bot = InternshipApplicationBot(profile, headless=False, use_agent=True)
 
     try:
         # Start browser

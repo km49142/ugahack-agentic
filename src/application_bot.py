@@ -5,12 +5,20 @@ from .application_tracker import ApplicationTracker
 from .profile_manager import ProfileManager
 import asyncio
 
+# Optional agent import is only used when opt-in
+try:
+    from .agent import ApplicationAgent
+except Exception:
+    ApplicationAgent = None
+
 
 class InternshipApplicationBot:
     """Main bot orchestrator for automated internship applications."""
 
-    def __init__(self, profile_manager: ProfileManager, headless: bool = False):
+    def __init__(self, profile_manager: ProfileManager, headless: bool = False,
+                 use_agent: bool = False, agent_provider: str = "anthropic"):
         """
+        
         Initialize the application bot.
 
         Args:
@@ -21,6 +29,12 @@ class InternshipApplicationBot:
         self.browser = BrowserAutomation(headless=headless, slow_mo=100)
         self.tracker = ApplicationTracker()
         self.current_application_id = None
+        # Create agent if requested
+        self.agent = None
+        if use_agent:
+            if ApplicationAgent is None:
+                raise RuntimeError("Agent module not available. Make sure src/agent.py is present and imports succeed.")
+            self.agent = ApplicationAgent(self.profile_manager.profile, provider=agent_provider)
 
     async def start(self):
         """Start the bot and browser."""
@@ -70,7 +84,7 @@ class InternshipApplicationBot:
 
             # Auto-fill form
             print("\nDetecting and filling form fields...")
-            form_filler = FormFiller(self.browser.page, self.profile_manager.profile)
+            form_filler = FormFiller(self.browser.page, self.profile_manager.profile, agent=self.agent)
             fill_results = await form_filler.auto_fill_form()
 
             print(f"\nForm filling results:")

@@ -1,6 +1,6 @@
-# AI Internship Application Bot
+# AI Internship Application Bot (testBranch)
 
-An intelligent automation tool that helps you apply to internships faster using web automation.
+An intelligent automation tool for internship applications, now featuring **AI-powered field answering**.
 
 ## 🚀 Quick Start
 
