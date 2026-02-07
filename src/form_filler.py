@@ -285,12 +285,12 @@ class FormFiller:
                     await self._fill_field(field, value)
                     filled_fields.append(field['purpose'])
                 else:
-                    # Try agent for unknown or open-ended fields
-                    if self.agent and field['purpose'] in ('unknown',) and field.get('label'):
+                    # Try agent for fields we couldn't fill from profile
+                    if self.agent and field.get('label') and field['selector']:
                         try:
                             resp = await self.agent.answer_question(field['label'])
                             answer = resp.get('answer') if isinstance(resp, dict) else str(resp)
-                            if answer and field['selector']:
+                            if answer:
                                 await self._fill_field(field, answer)
                                 filled_fields.append(field['purpose'])
                                 continue

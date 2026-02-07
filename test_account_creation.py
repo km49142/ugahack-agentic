@@ -31,7 +31,14 @@ async def _test_account_detection_async():
     ]
 
     playwright = await async_playwright().start()
-    browser = await playwright.chromium.launch(headless=False)
+    try:
+        browser = await playwright.chromium.launch(headless=True)
+    except Exception as e:
+        print(f"⚠️  Could not launch browser: {e}")
+        print("Please run: playwright install chromium")
+        await playwright.stop()
+        return
+
     context = await browser.new_context()
     page = await context.new_page()
 
@@ -63,9 +70,13 @@ async def _test_account_detection_async():
             print()
 
         print("=" * 60)
-        print("Test complete! Check the browser window.")
-        print("Press Enter to close...")
-        input()
+        print("Test complete!")
+        
+        # Only wait for input if running as __main__ and not in a CI environment
+        import os
+        if __name__ == "__main__" and not os.environ.get('CI'):
+            print("Press Enter to close...")
+            input()
 
     finally:
         await browser.close()

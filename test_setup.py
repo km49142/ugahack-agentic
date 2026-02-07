@@ -17,37 +17,35 @@ def test_imports():
         print("✓ Playwright")
     except ImportError:
         print("✗ Playwright - Run: pip install playwright")
-        return False
+        assert False, "playwright not installed"
 
     try:
         import docx
         print("✓ python-docx")
     except ImportError:
         print("✗ python-docx - Run: pip install python-docx")
-        return False
+        assert False, "python-docx not installed"
 
     try:
         import PyPDF2
         print("✓ PyPDF2")
     except ImportError:
         print("✗ PyPDF2 - Run: pip install PyPDF2")
-        return False
+        assert False, "PyPDF2 not installed"
 
     try:
         import pandas
         print("✓ pandas")
     except ImportError:
         print("✗ pandas - Run: pip install pandas")
-        return False
+        assert False, "pandas not installed"
 
     try:
         import httpx
         print("✓ httpx")
     except ImportError:
         print("✗ httpx - Run: pip install httpx")
-        return False
-
-    return True
+        assert False, "httpx not installed"
 
 
 def test_modules():
@@ -59,44 +57,42 @@ def test_modules():
         print("✓ ProfileManager")
     except ImportError as e:
         print(f"✗ ProfileManager: {e}")
-        return False
+        assert False, f"ProfileManager import failed: {e}"
 
     try:
         from src.resume_parser import ResumeParser
         print("✓ ResumeParser")
     except ImportError as e:
         print(f"✗ ResumeParser: {e}")
-        return False
+        assert False, f"ResumeParser import failed: {e}"
 
     try:
         from src.browser_automation import BrowserAutomation
         print("✓ BrowserAutomation")
     except ImportError as e:
         print(f"✗ BrowserAutomation: {e}")
-        return False
+        assert False, f"BrowserAutomation import failed: {e}"
 
     try:
         from src.form_filler import FormFiller, FormDetector
         print("✓ FormFiller & FormDetector")
     except ImportError as e:
         print(f"✗ FormFiller: {e}")
-        return False
+        assert False, f"FormFiller import failed: {e}"
 
     try:
         from src.application_tracker import ApplicationTracker
         print("✓ ApplicationTracker")
     except ImportError as e:
         print(f"✗ ApplicationTracker: {e}")
-        return False
+        assert False, f"ApplicationTracker import failed: {e}"
 
     try:
         from src.application_bot import InternshipApplicationBot
         print("✓ InternshipApplicationBot")
     except ImportError as e:
         print(f"✗ InternshipApplicationBot: {e}")
-        return False
-
-    return True
+        assert False, f"InternshipApplicationBot import failed: {e}"
 
 
 def test_profile_manager():
@@ -122,11 +118,10 @@ def test_profile_manager():
 
         # Clean up
         Path("data/test_profile.json").unlink(missing_ok=True)
-        return True
 
     except Exception as e:
         print(f"✗ ProfileManager test failed: {e}")
-        return False
+        assert False, f"ProfileManager test failed: {e}"
 
 
 def test_application_tracker():
@@ -155,11 +150,10 @@ def test_application_tracker():
 
         # Clean up
         Path("data/test_applications.csv").unlink(missing_ok=True)
-        return True
 
     except Exception as e:
         print(f"✗ ApplicationTracker test failed: {e}")
-        return False
+        assert False, f"ApplicationTracker test failed: {e}"
 
 
 def test_directories():
@@ -178,7 +172,7 @@ def test_directories():
         screenshots_dir.mkdir(parents=True)
 
     print("✓ Required directories exist")
-    return True
+
 
 
 def main():

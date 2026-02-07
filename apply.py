@@ -73,17 +73,11 @@ async def apply_to_internship():
     print()
 
     # Ask if user wants to use the AI agent
-    use_agent_choice = input("Do you want to use the AI agent to answer questions? (yes/no): ").strip().lower()
+    use_agent_choice = input("Do you want to use the local AI agent (TensorFlow) to answer questions? (yes/no): ").strip().lower()
     use_agent = use_agent_choice in ['yes', 'y']
-    agent_provider = None
+    
     if use_agent:
-        provider_choice = input("Which provider do you want to use? (anthropic/tensorflow): ").strip().lower()
-        if provider_choice in ["anthropic", "tensorflow"]:
-            agent_provider = provider_choice
-            print(f"✓ Using {agent_provider} agent.")
-        else:
-            print("⚠️  Invalid provider. Defaulting to no agent.")
-            use_agent = False
+        print("✓ Local AI Agent enabled.")
     
     print()
     print("=" * 70)
@@ -104,7 +98,7 @@ async def apply_to_internship():
     print()
 
     # Create bot
-    bot = InternshipApplicationBot(profile, headless=False, use_agent=use_agent, agent_provider=agent_provider)
+    bot = InternshipApplicationBot(profile, headless=False, use_agent=use_agent)
 
     try:
         # Start browser

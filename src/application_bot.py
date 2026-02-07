@@ -16,7 +16,7 @@ class InternshipApplicationBot:
     """Main bot orchestrator for automated internship applications."""
 
     def __init__(self, profile_manager: ProfileManager, headless: bool = False,
-                 use_agent: bool = False, agent_provider: str = "anthropic"):
+                 use_agent: bool = False):
         """
         
         Initialize the application bot.
@@ -34,7 +34,7 @@ class InternshipApplicationBot:
         if use_agent:
             if ApplicationAgent is None:
                 raise RuntimeError("Agent module not available. Make sure src/agent.py is present and imports succeed.")
-            self.agent = ApplicationAgent(self.profile_manager.profile, provider=agent_provider)
+            self.agent = ApplicationAgent(self.profile_manager.profile)
 
     async def start(self):
         """Start the bot and browser."""

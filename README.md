@@ -1,4 +1,4 @@
-# AI Internship Application Bot (testBranch)
+# AI Internship Application Bot
 
 An intelligent automation tool for internship applications, now featuring **AI-powered field answering**.
 
@@ -16,8 +16,8 @@ Run the interactive setup to store your information locally:
 python setup_profile.py
 ```
 
-### 3. Apply to Internships
-Run the bot and follow the prompts:
+### 3. Apply with AI
+Start the bot and follow the prompts. You can choose to enable the AI Agent for complex questions:
 ```bash
 python apply.py
 ```
@@ -26,41 +26,41 @@ python apply.py
 
 ## ✨ Features
 
-- 🤖 **Automated Form Filling**: Intelligently detects and fills form fields using pattern recognition.
+- 🤖 **AI Agent**: Uses LLMs (Anthropic Claude or local TensorFlow) to answer open-ended or unknown questions based on your profile.
 - 🔐 **Account Creation**: Automatically detects login/signup pages and can generate/save credentials.
-- 📄 **Document Handling**: Automatically uploads resumes and transcripts from your profile.
-- 📊 **Application Tracking**: Logs every application to `data/applications.csv` with status updates.
-- 📸 **Preview Mode**: Runs by default without submitting, saving screenshots of filled forms for your review.
-- 🔄 **Interactive Questions**: Asks you for answers to complex questions (e.g., "Do you need sponsorship?") and remembers them.
+- 📄 **Smart Form Filling**: Intelligently detects and fills common fields using pattern recognition.
+- 📂 **Document Handling**: Automatically uploads resumes and transcripts from your profile.
+- 📊 **Tracking**: Logs every application to `data/applications.csv` with status updates.
+- 📸 **Preview Mode**: Runs by default without submitting, saving screenshots of filled forms for review.
 
 ## 📂 Project Structure
 
 ```
 ugahack-agentic/
 ├── src/
-│   ├── profile_manager.py      # Manages user profile (JSON)
-│   ├── browser_automation.py    # Playwright wrapper
+│   ├── agent.py                # AI Agent orchestrator
+│   ├── llm_client.py           # Anthropic & TensorFlow clients
 │   ├── form_filler.py          # Field detection & filling logic
-│   ├── account_creator.py      # Login/Signup automation
-│   ├── application_tracker.py   # CSV tracking logic
-│   └── application_bot.py       # Main orchestrator
+│   ├── application_bot.py       # Main orchestrator
+│   └── ... (core logic)
+├── scripts/                    # Maintenance & smoke test scripts
+├── tests/                      # Unit and integration tests
 ├── data/                       # Created on first run (Profile & Logs)
-├── setup_profile.py            # CLI: Configure your info
+├── setup_profile.py            # CLI: Configure your profile
 ├── apply.py                    # CLI: Start applying
 └── requirements.txt            # Dependencies
 ```
 
-## 💡 Important Notes
+## 💡 AI Configuration
 
-- **Preview Mode**: The bot runs in preview mode by default. Always review screenshots in `data/screenshots/` before enabling `submit=True`.
-- **Security**: Your data (including generated passwords) is stored locally in `data/user_profile.json`. Never commit the `data/` folder to version control.
-- **Limitations**: Cannot solve CAPTCHAs or answer complex open-ended essays (yet).
+- **Local AI (TensorFlow)**: Uses a local model to answer questions privately on your machine. No API keys are required.
+- **Dependencies**: Requires `tensorflow` and `tensorflow_hub` packages. The model will download automatically (~500MB) on the first run.
 
-## 🛠️ Requirements
+## ⚠️ Important Notes
 
-- Python 3.8+
-- Playwright (Chromium)
-- Pandas (for tracking)
+- **Preview Mode**: Always review screenshots in `data/screenshots/` before enabling `submit=True`.
+- **Security**: Your data is stored locally in `data/user_profile.json`. Never commit the `data/` folder.
+- **Limitations**: Cannot solve CAPTCHAs or answer complex multi-page essays (yet).
 
 ---
 *Developed for UgaHacks. Use responsibly.*
