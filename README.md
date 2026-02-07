@@ -22,6 +22,14 @@ Start the bot and follow the prompts. You can choose to enable the AI Agent for 
 python apply.py
 ```
 
+## 🎮 Local Demo Site
+
+We've included a local Flask application to test the bot safely without submitting to real companies.
+
+1.  **Start Demo**: `python demo_app.py`
+2.  **Apply**: Use URL `http://localhost:5000/apply` in the bot.
+3.  See `DEMO_GUIDE.md` for full instructions.
+
 ---
 
 ## ✨ Features

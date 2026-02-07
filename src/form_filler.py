@@ -52,7 +52,7 @@ class FormDetector:
                 'label': label_text,
                 'required': required,
                 'purpose': field_purpose,
-                'selector': f'#{id_attr}' if id_attr else f'[name="{name}"]' if name else None
+                'selector': (f'[id="{id_attr}"]' if id_attr and (id_attr[0].isdigit() or ':' in id_attr or '.' in id_attr) else f'#{id_attr}') if id_attr else f'[name="{name}"]' if name else None
             }
         except Exception as e:
             print(f"Error analyzing input field: {e}")
