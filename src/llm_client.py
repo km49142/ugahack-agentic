@@ -1,6 +1,7 @@
 import os
 import asyncio
 import json
+import re
 import numpy as np
 from typing import Optional, Dict, Any, List
 
@@ -54,7 +55,24 @@ class TensorFlowClient:
     async def generate(self, profile: Dict[str, Any], question: str, **kwargs) -> dict:
         """
         Finds the best matching fact from the profile for the given question.
+        Returns empty answer if confidence is too low or question is about fields we shouldn't fill.
         """
+        # List of questions/fields we should never answer from profile (optional EEOC/demographic fields)
+        skip_questions = [
+            r'\bpronoun',
+            r'\bgender',
+            r'\brace',
+            r'\bethnicity',
+            r'\bdisability',
+            r'\bveteran',
+            r'\bpreferred[\s_-]?name\b',
+        ]
+        
+        question_lower = question.lower()
+        for skip_pattern in skip_questions:
+            if re.search(skip_pattern, question_lower):
+                return {"answer": "", "score": 0, "skipped": True}
+        
         # 1. Flatten profile into candidate answers
         candidates = self._flatten_profile(profile)
         if not candidates:
@@ -85,12 +103,12 @@ class TensorFlowClient:
         loop = asyncio.get_event_loop()
         best_answer, score = await loop.run_in_executor(None, _inference)
         
-        # Simple threshold
-        if score < 0.2:
+        # Higher confidence threshold - form fields need strong matches (0.5+ is good)
+        if score < 0.5:
             return {
-                "answer": f"I am not sure. (Best guess: {best_answer}, Confidence: {score:.2f})",
+                "answer": "",
                 "score": score,
-                "evidence": [best_answer]
+                "evidence": []
             }
 
         # Clean up the answer (remove the "key: " prefix if possible, or just return it)

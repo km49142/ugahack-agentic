@@ -82,6 +82,22 @@ class FormDetector:
         """Infer the purpose of a field based on its attributes."""
         # Combine all text indicators
         combined = f"{name} {id_attr} {placeholder} {label}".lower()
+        
+        # Handle standalone "Name" field (common in ATS like Ashby) - check early
+        if label.strip().lower() == 'name' and 'full' not in combined and 'first' not in combined and 'last' not in combined:
+            return 'full_name'
+
+        # Check for EEOC fields - these should auto-select "Decline to self-identify"
+        eeoc_patterns = [
+            (r'\bgender\b', 'eeoc_decline'),
+            (r'\brace\b|\bethnicity\b', 'eeoc_decline'),
+            (r'\bdisability\b', 'eeoc_decline'),
+            (r'\bveteran\b', 'eeoc_decline'),
+        ]
+        
+        for pattern, purpose in eeoc_patterns:
+            if re.search(pattern, combined):
+                return purpose
 
         # Check for fields that need USER INPUT (yes/no questions, relocation, etc.)
         user_input_patterns = [
@@ -101,11 +117,7 @@ class FormDetector:
             r'\brefer\b',
             r'\bemployee[\s_-]?referral\b',
             r'\bhow[\s_-]?did[\s_-]?you[\s_-]?hear\b',
-            r'\bveteran\b',
-            r'\bdisability\b',
-            r'\bethnicity\b',
-            r'\brace\b',
-            r'\bgender\b',
+            r'\bpronoun\b|\bpreferred[\s_-]?pronoun\b',
         ]
 
         for pattern in skip_patterns:
@@ -195,6 +207,50 @@ class FormFiller:
 
         for field in fields:
             try:
+                # Handle EEOC fields - auto-select "Decline to self-identify"
+                if field['purpose'] == 'eeoc_decline':
+                    try:
+                        # Find and check the "Decline to self-identify" option in this field group
+                        element = await self.page.query_selector(field['selector'])
+                        if element:
+                            # Look for decline option in the form (usually in same field group)
+                            # First, try to find by checking all radio options and their labels
+                            parent_group = await element.evaluate('''el => {
+                                let parent = el;
+                                // Go up to find the fieldset or container
+                                while (parent && parent.tagName !== 'FIELDSET' && parent.className.indexOf('field') === -1) {
+                                    parent = parent.parentElement;
+                                }
+                                return parent || el.parentElement;
+                            }''')
+                            
+                            if parent_group:
+                                # Find all radio inputs and check for decline text
+                                decline_found = await self.page.evaluate('''groupEl => {
+                                    const radios = groupEl.querySelectorAll('input[type="radio"]');
+                                    for (let radio of radios) {
+                                        const label = radio.parentElement?.textContent || '';
+                                        const ariaLabel = radio.getAttribute('aria-label') || '';
+                                        if (label.toLowerCase().includes('decline') || ariaLabel.toLowerCase().includes('decline')) {
+                                            return radio.id || radio.getAttribute('id');
+                                        }
+                                    }
+                                    return null;
+                                }''', parent_group)
+                                
+                                if decline_found:
+                                    try:
+                                        await self.page.check(f'#{decline_found}', timeout=3000)
+                                        skipped_fields.append(f"{field['label'] or field['name']} (auto-declined)")
+                                        continue
+                                    except Exception as e:
+                                        print(f"Warning: Could not check decline option: {e}")
+                    except Exception as e:
+                        print(f"Warning: Could not handle EEOC field: {e}")
+                    
+                    skipped_fields.append(field['label'] or field['name'] or 'unknown')
+                    continue
+                
                 # Skip optional fields we don't have data for
                 if field['purpose'] == 'skip_optional':
                     skipped_fields.append(field['label'] or field['name'] or 'unknown')
