@@ -285,8 +285,8 @@ class FormFiller:
                     await self._fill_field(field, value)
                     filled_fields.append(field['purpose'])
                 else:
-                    # Try agent for fields we couldn't fill from profile
-                    if self.agent and field.get('label') and field['selector']:
+                    # Try agent for fields we couldn't fill from profile (skip files/passwords)
+                    if self.agent and field.get('label') and field['selector'] and field['type'] not in ['file', 'password']:
                         try:
                             resp = await self.agent.answer_question(field['label'])
                             answer = resp.get('answer') if isinstance(resp, dict) else str(resp)
